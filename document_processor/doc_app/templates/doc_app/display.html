@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Interactive Document</title>
+    <style>
+      body {
+        display: flex;
+        justify-content: center;
+        margin: 0;
+        padding: 20px;
+        font-family: Arial, sans-serif;
+      }
+      .container {
+        display: flex;
+        width: 100%;
+        max-width: 1200px; /* Adjust based on your preference */
+        align-items: flex-start;
+      }
+      .text-block {
+        flex: 1;
+        padding: 20px;
+        margin: 10px;
+        background-color: #f9f9f9;
+        border: 1px solid #ccc;
+        overflow-y: auto;
+        height: 600px; /* Adjust based on your preference */
+      }
+      .highlight {
+        background-color: yellow;
+        cursor: pointer;
+        position: relative;
+      }
+      .button-container {
+        display: none;
+        position: absolute;
+        left: 0;
+        top: 100%;
+        white-space: nowrap;
+        background: #f9f9f9;
+        border: 1px solid #ccc;
+        z-index: 1000;
+      }
+      .button-container button {
+        margin: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="text-block">
+        <h1>Original Document</h1>
+        <div style="text-align: justify">{{ original_text|safe }}</div>
+      </div>
+      <div class="text-block">
+        <h1>Processed Document</h1>
+        <div style="text-align: justify">{{ processed_text|safe }}</div>
+      </div>
+    </div>
+
+    <script>
+      document.querySelectorAll(".highlight").forEach(function (elem) {
+        elem.addEventListener("mouseover", function () {
+          let container = elem.querySelector(".button-container");
+          if (!container) {
+            container = document.createElement("div");
+            container.className = "button-container";
+            container.innerHTML = `<button onclick="editWord('${elem.textContent}', this)">Edit</button>
+                                   <button onclick="replaceAll('${elem.textContent}', this)">Edit All</button>
+                                   <button onclick="goForNext('${elem.textContent}', this)">Go for next</button>`;
+            elem.appendChild(container);
+          }
+          container.style.display = "block";
+        });
+
+        elem.addEventListener("mouseout", function () {
+          let container = elem.querySelector(".button-container");
+          if (container) {
+            container.style.display = "none";
+          }
+        });
+      });
+
+      function editWord(text, btn) {
+        let newText = prompt("Edit the text:", text);
+        if (newText !== null && newText !== text) {
+          let parentSpan = btn.parentNode.parentNode;
+          parentSpan.textContent = newText;
+        }
+      }
+
+      function replaceAll(text, btn) {
+        let newText = prompt(
+          "Replace all occurrences of '" + text + "' with:",
+          text
+        );
+        if (newText !== null && newText !== text) {
+          document.querySelectorAll(".highlight").forEach(function (elem) {
+            if (elem.textContent === text) {
+              elem.textContent = newText;
+            }
+          });
+        }
+      }
+
+      function goForNext(text, btn) {
+        let allHighlights = Array.from(document.querySelectorAll(".highlight"));
+        let currentIndex = allHighlights.indexOf(btn.parentNode.parentNode);
+        if (currentIndex > -1 && currentIndex + 1 < allHighlights.length) {
+          allHighlights[currentIndex + 1].scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+          });
+          allHighlights[currentIndex + 1].style.background = "orange"; // Highlight the next word
+        }
+      }
+    </script>
+  </body>
+</html>
